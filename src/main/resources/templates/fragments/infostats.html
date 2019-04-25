@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>infostats</title>
+</head>
+<body>
+    <div th:fragment="paylog_form" id="paylog_form">
+        <div class="row">
+            <form id="searchform" class="form-search" action="#" onsubmit="return false">
+                <div class="pull-right">
+                    <input class="navbar-search" id="searchName" name="searchName" value="" />
+                    <button type="submit" class="btn btn-1 btn-1c" name="submit" id="submit" th:attr="url=@{/infostats/paylog/}" th:onclick="'searchPayLog(this.getAttribute(\'url\'))'">搜索</button>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="table-responsive" id="searchresult">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th th:text="流水号"></th>
+                        <th th:text="用户名"></th>
+                        <th th:text="付费金额"></th>
+                        <th th:text="付费时间"></th>
+                        <th th:text="付费类型"></th>
+                        <th th:text="付费前截止时间"></th>
+                        <th th:text="当前截止时间"></th>
+                        <th th:text="备注"></th>
+                        <th th:text="更新时间"></th>
+                        <th th:text="操作员工号"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="frontuser:${paylog_pageinfo.list}">
+                        <td class="active" th:text="${frontuser.pay_id}"></td>
+                        <td class="active" th:text="${frontuser.login_name}"></td>
+                        <td class="active" th:text="${frontuser.pay_money}"></td>
+                        <td class="active" th:text="${frontuser.pay_time}"></td>
+                        <td class="active" th:text="${frontuser.pay_type}"></td>
+                        <td class="active" th:text="${frontuser.lastEndDate}"></td>
+                        <td class="active" th:text="${frontuser.currentEndDate}"></td>
+                        <td class="active" th:text="${frontuser.remark}"></td>
+                        <td class="active" th:text="${frontuser.update_time}"></td>
+                        <td class="active" th:text="${frontuser.update_staff_id}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="clearfix">
+                    <ul class="pagination m-b-5 pull-right">
+                        <li><a th:attr="url=@{infostats/paylog/list}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),0)'">首  页</a></li>
+                        <th:block th:if="${paylog_pageinfo.hasPreviousPage}">
+                            <li><a th:attr="url=@{infostats/paylog/list}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${paylog_pageinfo.pageNum-1}+')'">上一页</a></li>
+                        </th:block>
+                        <th:block th:each="nav : ${paylog_pageinfo.navigatepageNums}">
+                            <li th:class="${nav == paylog_pageinfo.pageNum}?'active':''">
+                                <a th:attr="url=@{infostats/paylog/list}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${nav}+')'" th:text="${nav}"></a>
+                            </li>
+                        </th:block>
+                        <th:block th:if="${paylog_pageinfo.hasNextPage}">
+                            <li><a th:attr="url=@{infostats/paylog/list}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${paylog_pageinfo.pageNum+1}+')'">下一页</a></li>
+                        </th:block>
+                        <li><a th:attr="url=@{infostats/paylog/list}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${paylog_pageinfo.pages}+')'">末  页</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:fragment="paylog_result" id="paylog_result">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th th:text="流水号"></th>
+                <th th:text="用户名"></th>
+                <th th:text="付费金额"></th>
+                <th th:text="付费时间"></th>
+                <th th:text="付费类型"></th>
+                <th th:text="付费前截止时间"></th>
+                <th th:text="当前截止时间"></th>
+                <th th:text="备注"></th>
+                <th th:text="更新时间"></th>
+                <th th:text="操作员工号"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="frontuser:${paylog_pageinfo.list}">
+                <td class="active" th:text="${frontuser.pay_id}"></td>
+                <td class="active" th:text="${searchName}"></td>
+                <td class="active" th:text="${frontuser.pay_money}"></td>
+                <td class="active" th:text="${frontuser.pay_time}"></td>
+                <td class="active" th:text="${frontuser.pay_type}"></td>
+                <td class="active" th:text="${frontuser.lastEndDate}"></td>
+                <td class="active" th:text="${frontuser.currentEndDate}"></td>
+                <td class="active" th:text="${frontuser.remark}"></td>
+                <td class="active" th:text="${frontuser.update_time}"></td>
+                <td class="active" th:text="${frontuser.update_staff_id}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="clearfix">
+            <ul class="pagination m-b-5 pull-right">
+                <li><a th:attr="url=@{infostats/paylog/}+${searchName}" th:onclick="'javascript:pagehelperSearch(this.getAttribute(\'url\'),0)'">首  页</a></li>
+                <th:block th:if="${paylog_pageinfo.hasPreviousPage}">
+                    <li><a th:attr="url=@{infostats/paylog/}+${searchName}" th:onclick="'javascript:pagehelperSearch(this.getAttribute(\'url\'),'+${paylog_pageinfo.pageNum-1}+')'">上一页</a></li>
+                </th:block>
+                <th:block th:each="nav : ${paylog_pageinfo.navigatepageNums}">
+                    <li th:class="${nav == paylog_pageinfo.pageNum}?'active':''">
+                        <a th:attr="url=@{infostats/paylog/}+${searchName}" th:onclick="'javascript:pagehelperSearch(this.getAttribute(\'url\'),'+${nav}+')'" th:text="${nav}"></a>
+                    </li>
+                </th:block>
+                <th:block th:if="${paylog_pageinfo.hasNextPage}">
+                    <li><a th:attr="url=@{infostats/paylog/}+${searchName}" th:onclick="'javascript:pagehelperSearch(this.getAttribute(\'url\'),'+${paylog_pageinfo.pageNum+1}+')'">下一页</a></li>
+                </th:block>
+                <li><a th:attr="url=@{infostats/paylog/}+${searchName}" th:onclick="'javascript:pagehelperSearch(this.getAttribute(\'url\'),'+${paylog_pageinfo.pages}+')'">末  页</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

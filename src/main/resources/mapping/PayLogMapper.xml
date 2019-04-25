@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace:命名空间，其值为某一个DAO层类的具体路径-->
+<mapper namespace="com.tian.boot.mapper.FrontUserPayLogMapper">
+    <resultMap id="PayLog" type="com.tian.boot.entity.FrontUserPayLog">
+        <result property="pay_id" javaType="Long" column="pay_id" jdbcType="BIGINT"/>
+        <result property="user_id" javaType="Long" column="user_id" jdbcType="BIGINT"/>
+        <result property="login_name" javaType="String" column="login_name" jdbcType="VARCHAR"/>
+        <result property="pay_money" javaType="Float" column="pay_money" jdbcType="FLOAT"/>
+        <result property="pay_time" javaType="java.util.Date" column="pay_time" jdbcType="TIMESTAMP"/>
+        <result property="pay_type" javaType="Byte" column="pay_type" jdbcType="TINYINT"/>
+        <result property="lastEndDate" javaType="java.util.Date" column="lastEndDate" jdbcType="TIMESTAMP"/>
+        <result property="currentEndDate" javaType="java.util.Date" column="currentEndDate" jdbcType="TIMESTAMP"/>
+        <result property="remark" javaType="String" column="remark" jdbcType="VARCHAR"/>
+        <result property="update_time" javaType="java.util.Date" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="update_staff_id" javaType="String" column="update_staff_id" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="selectPayLogListByLoginName" resultMap="PayLog" parameterType="String">
+      select t2.pay_id,
+            t2.user_id,
+            t1.login_name,
+            t2.pay_money,
+            t2.pay_time,
+            t2.pay_type,
+            t2.lastEndDate,
+            t2.currentEndDate,
+            t2.remark,
+            t2.update_time,
+            t2.update_staff_id
+       from tf_f_user t1, tf_b_paylog t2 where t1.user_id=t2.user_id and t1.login_name=#{param_login_name}
+    </select>
+</mapper>

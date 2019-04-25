@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace:命名空间，其值为某一个DAO层类的具体路径-->
+<mapper namespace="com.tian.boot.mapper.GetMenu">
+    <resultMap id="Menu" type="com.tian.boot.entity.FirstMenu">
+        <result property="authorityId" javaType="String" column="authority_id" jdbcType="VARCHAR"/>
+        <result property="firstName" javaType="String" column="authority_name_1" jdbcType="VARCHAR"/>
+        <collection property="secondMenuList" ofType="com.tian.boot.entity.SecondMenu">
+            <result property="secondName" javaType="String" column="authority_name_2" jdbcType="VARCHAR"/>
+            <result property="url" javaType="String" column="authority_url_2" jdbcType="VARCHAR"/>
+            <result property="parent" javaType="Long" column="parent" jdbcType="BIGINT"/>
+            <result property="remark" javaType="String" column="remark" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+    <select id="getFirstMenu" resultMap="Menu" parameterType="String">
+      select a.authority_id,a.authority_name authority_name_1,b.authority_name authority_name_2,b.parent,b.authority_url authority_url_2,b.remark
+from (select role_name from sys_user where user_name=#{user_name}) c,
+(select t1.role_name,t2.authority_id,t2.authority_name
+from sys_user_authority t1,sys_authority t2
+where t1.authority_id=t2.authority_id and parent=0 ) a,
+(select t1.role_name,t2.parent,t2.authority_name,t2.authority_url,t2.remark
+from sys_user_authority t1,sys_authority t2
+where t1.authority_id=t2.authority_id and parent!=0 ) b
+where a.authority_id=b.parent and a.role_name=c.role_name and b.role_name=c.role_name;
+    </select>
+</mapper>

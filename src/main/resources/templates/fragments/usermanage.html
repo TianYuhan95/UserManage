@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="../../static/css/bootstrap.min.css" rel="stylesheet">
+    <title>usermanage</title>
+</head>
+<body>
+<!--用户列表展示-->
+    <div th:fragment="userlist" id="userresult">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th th:text="登录名"></th>
+                <th th:text="用户名"></th>
+                <th th:text="联系方式"></th>
+                <th th:text="公司名称"></th>
+                <th th:text="创建时间"></th>
+                <th th:text="失效时间"></th>
+                <th th:text="用户状态"></th>
+                <th th:text="更新时间"></th>
+                <th th:text="操作员工工号"></th>
+                <th th:text="操作"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="frontuser:${alluserlist.list}">
+                <td class="active" th:text="${frontuser.login_name}"></td>
+                <td class="active" th:text="${frontuser.user_name}"></td>
+                <td class="active" th:text="${frontuser.serial_number}"></td>
+                <td class="active" th:text="${frontuser.company_name}"></td>
+                <td class="active" th:text="${frontuser.create_date}"></td>
+                <td class="active" th:text="${frontuser.end_date}"></td>
+                <div th:switch="${frontuser.status}">
+                    <td class="active" th:case="0" th:text="注册用户"></td>
+                    <td class="active" th:case="1" th:text="未授权用户"></td>
+                    <td class="active" th:case="2" th:text="已授权用户"></td>
+                    <td class="active" th:case="3" th:text="注销用户"></td>
+                </div>
+                <td class="active" th:text="${frontuser.update_time}"></td>
+                <td class="active" th:text="${frontuser.update_staff_id}"></td>
+                <td class="active">
+                    <a th:if="${frontuser.status} eq 2" href="javascript:void(0)" th:onclick="'javascript:showDetails('+${frontuser.user_id}+','+${frontuser.status}+')'" th:text="详情"></a>
+                    <a th:if="${frontuser.status} eq 2" th:attr="data-user-name=${frontuser.user_name},data-end_date=${frontuser.end_date}"
+                       th:onclick="'values('+${frontuser.user_id}+',this.getAttribute(\'data-user-name\'),this.getAttribute(\'data-end_date\'))'"  th:text="充值" data-toggle="modal" data-target="#chargeModal" ></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="clearfix">
+            <ul class="pagination m-b-5 pull-right">
+                <li><a th:attr="url=@{user/list}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),0)'">首  页</a></li>
+                <th:block th:if="${alluserlist.hasPreviousPage}">
+                    <li><a th:attr="url=@{user/list}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${alluserlist.pageNum-1}+')'">上一页</a></li>
+                </th:block>
+                <th:block th:each="nav : ${alluserlist.navigatepageNums}">
+                    <li th:class="${nav == alluserlist.pageNum}?'active':''">
+                        <a th:attr="url=@{user/list}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${nav}+')'" th:text="${nav}"></a>
+                    </li>
+                </th:block>
+                <th:block th:if="${alluserlist.hasNextPage}">
+                    <li><a th:attr="url=@{user/list}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${alluserlist.pageNum+1}+')'">下一页</a></li>
+                </th:block>
+                <li><a th:attr="url=@{user/list}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${alluserlist.pages}+')'">末  页</a></li>
+            </ul>
+        </div>
+        <div class="modal fade" id="chargeModal" tabindex="-1" role="dialog" aria-labelledby="chargeModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="chargeModalLabel">充值</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" th:action="@{/user/charge/makecharge}" method="post">
+                            <input id="user_id" name="user_id" type="hidden" value="" />
+                            <input id="end_date" name="end_date" type="hidden" value="" />
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" for="user_name">姓名</label>
+                                <div class="col-sm-10">
+                                    <input class="form-control-static" id="user_name" name="user_name" value="" readonly="readonly"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="charge_money">充值金额</label>
+                                <div class="col-sm-6">
+                                    <input  id="charge_money" name="charge_money" value="" placeholder="请输入金额" required="required"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-2" for="charge_days">充值天数</label>
+                                <div class="col-sm-6">
+                                    <input  id="charge_days" name="charge_days" value="" placeholder="请输入天数" required="required"/>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="userdetail" tabindex="-1" role="dialog" aria-labelledby="userdetailModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title text-info" id="userdetailModalLabel">用户详情</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                       <table class="table-responsive table-condensed">
+                           <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>属性值</th>
+                                    <th>开始时间</th>
+                                    <th>失效时间</th>
+                                </tr>
+                           </thead>
+                           <tbody>
+                                <tr>
+                                    <td class="text-info">AppKey</td>
+                                    <td class="text-warning" id="appKey_value"></td>
+                                    <td id="appKey_start_date"></td>
+                                    <td id="appKey_end_date"></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-info">SecretKey</td>
+                                    <td class="text-warning" id="secretKey_value"></td>
+                                    <td id="secretKey_start_date"></td>
+                                    <td id="secretKey_end_date"></td>
+                                </tr>
+                           </tbody>
+                       </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--注册列表展示-->
+    <div th:fragment="checkregist" id="registlist">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th th:text="登录名"></th>
+                <th th:text="用户名"></th>
+                <th th:text="公司名"></th>
+                <th th:text="创建时间"></th>
+                <th th:text="失效时间"></th>
+                <th th:text="用户状态"></th>
+                <th th:text="更新时间"></th>
+                <th th:text="操作"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="frontuser:${checkuserlist.list}">
+                <div th:if="${frontuser.status} eq 0">
+                    <td class="active" th:text="${frontuser.login_name}"></td>
+                    <td class="active" th:text="${frontuser.user_name}"></td>
+                    <td class="active" th:text="${frontuser.company_name}"></td>
+                    <td class="active" th:text="${frontuser.create_date}"></td>
+                    <td class="active" th:text="${frontuser.end_date}"></td>
+                    <td class="active" th:text="注册用户"></td>
+                    <td class="active" th:text="${frontuser.update_time}"></td>
+                    <td class="active">
+                        <a href="javascript:void(0)" th:attr="url=@{/user/check/makeaccess}" th:onclick="'javascript:accessRegister(this.getAttribute(\'url\'),'+${frontuser.user_id}+')'" th:text="通过"></a>
+                        <a href="javascript:void(0)" th:attr="url=@{/user/check/deny}" th:onclick="'javascript:accessRegister(this.getAttribute(\'url\'),'+${frontuser.user_id}+')'" th:text="拒绝"></a>
+                    </td>
+                </div>
+            </tr>
+            </tbody>
+        </table>
+        <div class="clearfix">
+            <ul class="pagination m-b-5 pull-right">
+                <li><a th:attr="url=@{user/check}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),0)'">首  页</a></li>
+                <th:block th:if="${checkuserlist.hasPreviousPage}">
+                    <li><a th:attr="url=@{user/check}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${checkuserlist.pageNum-1}+')'">上一页</a></li>
+                </th:block>
+                <th:block th:each="nav : ${checkuserlist.navigatepageNums}">
+                    <li th:class="${nav == checkuserlist.pageNum}?'active':''">
+                        <a th:attr="url=@{user/check}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${nav}+')'" th:text="${nav}"></a>
+                    </li>
+                </th:block>
+                <th:block th:if="${checkuserlist.hasNextPage}">
+                    <li><a th:attr="url=@{user/check}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${checkuserlist.pageNum+1}+')'">下一页</a></li>
+                </th:block>
+                <li><a th:attr="url=@{user/check}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${checkuserlist.pages}+')'">末  页</a></li>
+            </ul>
+        </div>
+    </div>
+    <div th:fragment="grantlist" id="grantlist">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th th:text="登录名"></th>
+                <th th:text="用户名"></th>
+                <th th:text="公司名"></th>
+                <th th:text="创建时间"></th>
+                <th th:text="失效时间"></th>
+                <th th:text="用户状态"></th>
+                <th th:text="更新时间"></th>
+                <th th:text="操作"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="frontuser:${grantuserlist.list}">
+                <div th:if="${frontuser.status} gt 0">
+                    <td class="active" th:text="${frontuser.login_name}"></td>
+                    <td class="active" th:text="${frontuser.user_name}"></td>
+                    <td class="active" th:text="${frontuser.company_name}"></td>
+                    <td class="active" th:text="${frontuser.create_date}"></td>
+                    <td class="active" th:text="${frontuser.end_date}"></td>
+                    <div th:switch="${frontuser.status}">
+                        <td class="active" th:case="1" th:text="未授权用户"></td>
+                        <td class="active" th:case="2" th:text="已授权用户"></td>
+                        <td class="active" th:case="3" th:text="注销用户"></td>
+                    </div>
+                    <td class="active" th:text="${frontuser.update_time}"></td>
+                    <td class="active">
+                        <div th:switch="${frontuser.status}">
+                            <a th:case="1" href="javascript:void(0)" th:onclick="'javascript:makeGrant('+${frontuser.user_id}+','+${frontuser.status}+')'" th:text="授权" ></a>
+                            <a th:case="2" href="javascript:void(0)" th:onclick="'javascript:makeGrant('+${frontuser.user_id}+','+${frontuser.status}+')'" th:text="失效" ></a>
+                            <a th:case="3" href="javascript:void(0)" th:onclick="'javascript:makeGrant('+${frontuser.user_id}+','+${frontuser.status}+')'" th:text="授权" ></a>                        </div>
+                    </td>
+                </div>
+            </tr>
+            </tbody>
+        </table>
+        <div class="clearfix">
+            <ul class="pagination m-b-5 pull-right">
+                <li><a th:attr="url=@{user/grant}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),0)'">首  页</a></li>
+                <th:block th:if="${grantuserlist.hasPreviousPage}">
+                    <li><a th:attr="url=@{user/grant}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${grantuserlist.pageNum-1}+')'">上一页</a></li>
+                </th:block>
+                <th:block th:each="nav : ${grantuserlist.navigatepageNums}">
+                    <li th:class="${nav == grantuserlist.pageNum}?'active':''">
+                        <a th:attr="url=@{user/grant}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${nav}+')'" th:text="${nav}"></a>
+                    </li>
+                </th:block>
+                <th:block th:if="${grantuserlist.hasNextPage}">
+                    <li><a th:attr="url=@{user/grant}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${grantuserlist.pageNum+1}+')'">下一页</a></li>
+                </th:block>
+                <li><a th:attr="url=@{user/grant}" th:onclick="'javascript:pagehelper(this.getAttribute(\'url\'),'+${grantuserlist.pages}+')'">末  页</a></li>
+            </ul>
+        </div>
+    </div>
+
+<script src="../../static/js/jquery-3.3.1.js" ></script>
+<script src="../../static/js/bootstrap.js" ></script>
+<script type="text/javascript">
+    $(document).ready(
+        function () {
+            $("#userdetail").modal('show');
+        }
+    );
+</script>
+</body>
+</html>
